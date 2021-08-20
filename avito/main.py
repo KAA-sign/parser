@@ -1,9 +1,10 @@
 import datetime
+import urllib.parse
 from collections import namedtuple
 
-from bs4 import BeautifulSoup
 import bs4
 import requests
+import time
 
 
 InnerBlock = namedtuple('Block', 'title, price, currency, date, url')
@@ -31,8 +32,10 @@ class AvitoParser:
         if page and page > 1:
             params['p'] = page
         
-        url = 'https://www.avito.ru/nizhniy_novgorod/zemelnye_uchastki/prodam-ASgBAgICAUSWA9oQ'
+        # url = 'https://www.avito.ru/nizhniy_novgorod/zemelnye_uchastki/prodam-ASgBAgICAUSWA9oQ'
+        url = 'https://www.avito.ru/nizhniy_novgorod/tovary_dlya_kompyutera/komplektuyuschie/videokarty-ASgBAgICAkTGB~pm7gmmZw?cd=1&q=gtx+1070'
         r = self.session.get(url, params=params)
+        
         return r.text
 
     
@@ -82,13 +85,19 @@ class AvitoParser:
     def get_pagination_limit(self):
         text = self.get_page()
         soup = bs4.BeautifulSoup(text, 'lxml')
+        container = soup.select('a.pagination-page')
+        last_batton = container[-1]
+        href = last_batton.get('href')
+        if not href:
+            return 1
+        r = urllib.parse.urlparse(href)
+    
+        params = urllib.parse.parse_qs(r.query)
+        return int(params['p'][0])
 
-        container = soup.select('span.pagination-item-1WyVp')
-        last_batton = container[-2]
-        print(last_batton)
 
-    def get_blocks(self):
-        text = self.get_page(page=2)
+    def get_blocks(self, page: int = None):
+        text = self.get_page(page=page)
         soup = bs4.BeautifulSoup(text, 'lxml')
 
         # Запрос CSS-селектора, состоящего изх множества классовб производится через select
@@ -98,9 +107,18 @@ class AvitoParser:
             print(block)
 
 
+    def parse_all(self):
+        limit = self.get_pagination_limit()
+        print(f'Всего страниц: {limit}')
+
+        for i in range(1, limit + 1):
+            self.get_blocks(page=i)
+
 def main():
     p = AvitoParser()
-    p.get_pagination_limit()
+    p.parse_all()
+
+    # p.get_pagination_limit()
     # p.get_blocks()
 
 if __name__ == '__main__':
