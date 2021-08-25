@@ -38,25 +38,25 @@ class AvitoParser:
         
         return r.text
 
-    
-
-
     def parse_block(self, item):
 
         # выбрать блок со ссылкой
-        url_block = item.select_one('a.link-link-39EVK')
+        url_block = item.select_one('a[itemprop]')
+        # url_block = item.select_one('a.link-link-39EVK')
         href = url_block.get('href')
         if href:
-            url = 'https://www.avito.ru/' + href
+            url = 'https://www.avito.ru' + href
         else:
             url = None
 
         # выбрать блок с названием
-        title_blok = item.select_one('div.iva-item-titleStep-2bjuh h3')
+
+        title_blok = item.select_one('h3[itemprop]')
+        # title_blok = item.select_one('div.iva-item-titleStep-2bjuh h3')
         title = title_blok.string.strip()
         
         # выбрать блок с ценой и валютой
-        price_block = item.select_one('span.price-text-1HrJ_')
+        price_block = item.select_one('span.price-root-2T2Gj.price-listRedesign-3NQ2o')
         price_block = price_block.get_text('\n')
         price_block = list(filter(None, map(lambda i: i.strip(), price_block.split('\n'))))
         if len(price_block) == 2:
@@ -67,12 +67,13 @@ class AvitoParser:
 
         # выбрать блок с датой размещения объявления
         date = None
-        date_block = item.select_one('span.tooltip-target-wrapper-XcPdv div.date-text-2jSvU.text-text-1PdBw.text-size-s-1PUdo.text-color-noaccent-bzEdI')
+
+        date_block = item.select_one('div.date-text-1a2C1.text-text-1la7J.text-size-s-2vtIX.text-color-noaccent-DFQB-')
+        # date_block = item.select_one('span.tooltip-target-wrapper-XcPdv div.date-text-2jSvU.text-text-1PdBw.text-size-s-1PUdo.text-color-noaccent-bzEdI')
         date = date_block.string.strip()
         # absolute_date = date_block('absolute_date')
         # if absolute_date:
         #     date = self.parse_date(item=absolute_date)
-
 
         return Block(
             url=url,
@@ -101,7 +102,10 @@ class AvitoParser:
         soup = bs4.BeautifulSoup(text, 'lxml')
 
         # Запрос CSS-селектора, состоящего изх множества классовб производится через select
-        container = soup.select('div.iva-item-root-G3n7v.photo-slider-slider-3tEix.iva-item-list-2_PpT.iva-item-redesign-1OBTh.iva-item-responsive-1z8BG.items-item-1Hoqq.items-listItem-11orH.js-catalog-item-enum')
+        container = soup.select('div[data-item-id]')
+        # container = soup.select('div.iva-item-root-nz94Y photo-slider-slider-3yhPU iva-item-list-2ptz- iva-item-redesign-d-JOB iva-item-responsive-lFce_ items-item-onmtx items-listItem-19eWR js-catalog-item-enum')
+        
+
         for item in container:
             block = self.parse_block(item=item)
             print(block)
