@@ -9,7 +9,6 @@
             "type": "python",
             "request": "launch",
             "program": "${workspaceFolder}/manage.py",
-            "pythonPath": "~/venv/parser/bin/python",
             "args": [
                 "runserver",
                 "--noreload",
