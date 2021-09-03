@@ -13,13 +13,6 @@
                 "runserver",
                 "--noreload",
             ],
-            "debugOptions": [
-                "WaitOnAbnormalExit",
-                "WaitOnNormalExit",
-                "RedirectOutput",
-                "DjangoDebugging"
-            ],
-            "django": true
         }
     ]
 }
