@@ -59,7 +59,7 @@ class AvitoParser:
         title = title_blok.string.strip()
         
         # выбрать блок с ценой и валютой
-        price_block = item.select_one('span.price-root-2T2Gj.price-listRedesign-3NQ2o')
+        price_block = item.select_one('span.price-text-E1Y7h.text-text-LurtD.text-size-s-BxGpL')
         price_block = price_block.get_text('\n')
         price_block = list(filter(None, map(lambda i: i.strip(), price_block.split('\n'))))
         if len(price_block) == 2:
@@ -71,7 +71,7 @@ class AvitoParser:
         # выбрать блок с датой размещения объявления
         date = None
 
-        date_block = item.select_one('div.date-text-1a2C1.text-text-1la7J.text-size-s-2vtIX.text-color-noaccent-DFQB-')
+        date_block = item.select_one('div.date-text-VwmJG.text-text-LurtD.text-size-s-BxGpL.text-color-noaccent-P1Rfs')
         # date_block = item.select_one('span.tooltip-target-wrapper-XcPdv div.date-text-2jSvU.text-text-1PdBw.text-size-s-1PUdo.text-color-noaccent-bzEdI')
         date = date_block.string.strip()
         # absolute_date = date_block('absolute_date')
