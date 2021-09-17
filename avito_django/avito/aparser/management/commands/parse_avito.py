@@ -35,8 +35,7 @@ class AvitoParser:
         if page and page > 1:
             params['p'] = page
         
-        # url = 'https://www.avito.ru/nizhniy_novgorod/zemelnye_uchastki/prodam-ASgBAgICAUSWA9oQ'
-        url = 'https://www.avito.ru/nizhniy_novgorod/tovary_dlya_kompyutera/komplektuyuschie/videokarty-ASgBAgICAkTGB~pm7gmmZw?cd=1&q=gtx+1070'
+        url = 'https://www.avito.ru/nizhniy_novgorod/tovary_dlya_kompyutera/komplektuyuschie/videokarty-ASgBAgICAkTGB~pm7gmmZw?f=ASgBAgECAkTGB~pm7gmmZwFFxpoMFXsiZnJvbSI6MCwidG8iOjMwMDAwfQ&q=gtx+1070'
         r = self.session.get(url, params=params)
         
         return r.text
@@ -45,7 +44,6 @@ class AvitoParser:
 
         # выбрать блок со ссылкой
         url_block = item.select_one('a[itemprop]')
-        # url_block = item.select_one('a.link-link-39EVK')
         href = url_block.get('href')
         if href:
             url = 'https://www.avito.ru' + href
@@ -55,24 +53,29 @@ class AvitoParser:
         # выбрать блок с названием
 
         title_blok = item.select_one('h3[itemprop]')
-        # title_blok = item.select_one('div.iva-item-titleStep-2bjuh h3')
         title = title_blok.string.strip()
         
         # выбрать блок с ценой и валютой
         price_block = item.select_one('span.price-text-E1Y7h.text-text-LurtD.text-size-s-BxGpL')
         price_block = price_block.get_text('\n')
+        # price_block_ = "".join(c for c in price_block if  c.isdecimal())
+        # price_block = price_block_
         price_block = list(filter(None, map(lambda i: i.strip(), price_block.split('\n'))))
         if len(price_block) == 2:
             price, currency = price_block
+            pr = "".join(c for c in price if  c.isdecimal())
+            price = pr
+            # price = int(price.replace(' ', ''))
+        elif len(price_block) == 1:
+            price, currency = 0, None
         else:
             price, currency = None, None
-            print('Что-то пошло не так при поиске цены:', price_block)
+            print(f'Что-то пошло не так при поиске цены: {price_block}, {url}')
 
         # выбрать блок с датой размещения объявления
         date = None
 
         date_block = item.select_one('div.date-text-VwmJG.text-text-LurtD.text-size-s-BxGpL.text-color-noaccent-P1Rfs')
-        # date_block = item.select_one('span.tooltip-target-wrapper-XcPdv div.date-text-2jSvU.text-text-1PdBw.text-size-s-1PUdo.text-color-noaccent-bzEdI')
         date = date_block.string.strip()
         # absolute_date = date_block('absolute_date')
         # if absolute_date:
@@ -82,9 +85,9 @@ class AvitoParser:
             url = url,
             title = title,
             price=price,
-            currency=currency,
-            date=date,
-        ).save
+            # currency=currency,
+            # date=date,
+        ).save()
         print(f'product {p}')
 
         return Block(
@@ -115,13 +118,11 @@ class AvitoParser:
 
         # Запрос CSS-селектора, состоящего изх множества классовб производится через select
         container = soup.select('div[data-item-id]')
-        # container = soup.select('div.iva-item-root-nz94Y photo-slider-slider-3yhPU iva-item-list-2ptz- iva-item-redesign-d-JOB iva-item-responsive-lFce_ items-item-onmtx items-listItem-19eWR js-catalog-item-enum')
         
 
         for item in container:
             block = self.parse_block(item=item)
             print(block)
-
 
     def parse_all(self):
         limit = self.get_pagination_limit()
