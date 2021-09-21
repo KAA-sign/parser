@@ -81,22 +81,39 @@ class AvitoParser:
         # if absolute_date:
         #     date = self.parse_date(item=absolute_date)
 
-        p = Product(
-            url = url,
-            title = title,
-            price=price,
-            # currency=currency,
-            # date=date,
-        ).save()
-        print(f'product {p}')
-
-        return Block(
+        bbb = Block(
             url=url,
             title=title,
             price=price,
             currency=currency,
             date=date,
         )
+        print(bbb)
+
+        try:
+            p = Product.objects.get(url=url)
+            p.title = title
+            p.price = price
+            p.currency = currency
+            p.save()
+        except Product.DoesNotExist:
+            p = Product(
+                url = url,
+                title = title,
+                price=price,
+                currency=currency,
+                published_date=date,
+            ).save()
+
+        # print(f'product {p}')
+
+        # return Block(
+        #     url=url,
+        #     title=title,
+        #     price=price,
+        #     currency=currency,
+        #     date=date,
+        # )
         
     def get_pagination_limit(self):
         text = self.get_page()
@@ -130,6 +147,7 @@ class AvitoParser:
 
         for i in range(1, limit + 1):
             self.get_blocks(page=i)
+
 
 
 

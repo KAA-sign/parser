@@ -6,5 +6,6 @@ from .forms import ProductForm
 
 @admin.register(Product)
 class ProductAdmin(admin.ModelAdmin):
-    list_display = ('title', 'price', 'url')
+    list_display = ('pk', 'title', 'price', 'currency', 'published_date', 'url')
+    list_filter = ('currency', 'published_date')
     form = ProductForm

@@ -8,5 +8,5 @@ class ProductForm(forms.ModelForm):
 
     class Meta:
         model = Product
-        fields = ('title', 'price', 'currency', 'url')
+        fields = ('title', 'price', 'currency', 'published_date', 'url')
         widgets = {'title': forms.TextInput, 'currency': forms.TextInput}
