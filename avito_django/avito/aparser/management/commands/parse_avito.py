@@ -6,6 +6,7 @@ import bs4
 import requests
 import time
 from django.core.management.base import BaseCommand
+from django.core.management.base import CommandError
 
 from aparser.models import Product
 
@@ -35,7 +36,7 @@ class AvitoParser:
         if page and page > 1:
             params['p'] = page
         
-        url = 'https://www.avito.ru/nizhniy_novgorod/tovary_dlya_kompyutera/komplektuyuschie/videokarty-ASgBAgICAkTGB~pm7gmmZw?f=ASgBAgECAkTGB~pm7gmmZwFFxpoMFXsiZnJvbSI6MCwidG8iOjMwMDAwfQ&q=gtx+1070'
+        url = 'https://www.avito.ru/nizhniy_novgorod/zemelnye_uchastki/prodam-ASgBAgICAUSWA9oQ?f=ASgBAgECAUSWA9oQAUXGmgwWeyJmcm9tIjowLCJ0byI6NDAwMDAwfQ'
         r = self.session.get(url, params=params)
         
         return r.text
@@ -44,6 +45,9 @@ class AvitoParser:
 
         # выбрать блок со ссылкой
         url_block = item.select_one('a[itemprop]')
+        if not url_block:
+            raise CommandError('bad "url_block" css')
+
         href = url_block.get('href')
         if href:
             url = 'https://www.avito.ru' + href
@@ -53,10 +57,16 @@ class AvitoParser:
         # выбрать блок с названием
 
         title_blok = item.select_one('h3[itemprop]')
+        if not title_blok:
+            raise CommandError('bad "title_blok" css')
+
         title = title_blok.string.strip()
         
         # выбрать блок с ценой и валютой
         price_block = item.select_one('span.price-text-E1Y7h.text-text-LurtD.text-size-s-BxGpL')
+        if not price_block:
+            raise CommandError('bad "price_block" css')
+
         price_block = price_block.get_text('\n')
         # price_block_ = "".join(c for c in price_block if  c.isdecimal())
         # price_block = price_block_
@@ -76,6 +86,9 @@ class AvitoParser:
         date = None
 
         date_block = item.select_one('div.date-text-VwmJG.text-text-LurtD.text-size-s-BxGpL.text-color-noaccent-P1Rfs')
+        if not date_block:
+            raise CommandError('bad "date_block" css')
+
         date = date_block.string.strip()
         # absolute_date = date_block('absolute_date')
         # if absolute_date:
@@ -139,7 +152,7 @@ class AvitoParser:
 
         for item in container:
             block = self.parse_block(item=item)
-            print(block)
+            # print(block)
 
     def parse_all(self):
         limit = self.get_pagination_limit()
