@@ -1,25 +1,21 @@
 import datetime
 import urllib.parse
-from collections import namedtuple
+from logging import getLogger
 
 import bs4
 import requests
-import time
 from django.core.management.base import BaseCommand
 from django.core.management.base import CommandError
 
 from aparser.models import Product
 
 
-InnerBlock = namedtuple('Block', 'title, price, currency, date, url')
 
-class Block(InnerBlock):
-    
-    def __str__(self):
-        return f'{self.title}\t{self.price}\t{self.currency}\t{self.date}\t{self.url}'
+logger = getLogger(__name__)
 
 
 class AvitoParser:
+    PAGE_LIMIT = 10
 
     def __init__(self):
         self.session = requests.Session()
@@ -80,7 +76,7 @@ class AvitoParser:
             price, currency = 0, None
         else:
             price, currency = None, None
-            print(f'Что-то пошло не так при поиске цены: {price_block}, {url}')
+            logger.error(f'Что-то пошло не так при поиске цены: {price_block}, {url}')
 
         # выбрать блок с датой размещения объявления
         date = None
@@ -94,14 +90,14 @@ class AvitoParser:
         # if absolute_date:
         #     date = self.parse_date(item=absolute_date)
 
-        bbb = Block(
-            url=url,
-            title=title,
-            price=price,
-            currency=currency,
-            date=date,
-        )
-        print(bbb)
+        # bbb = Block(
+        #     url=url,
+        #     title=title,
+        #     price=price,
+        #     currency=currency,
+        #     date=date,
+        # )
+        # print(bbb)
 
         try:
             p = Product.objects.get(url=url)
@@ -118,7 +114,7 @@ class AvitoParser:
                 published_date=date,
             ).save()
 
-        # print(f'product {p}')
+        logger.debug(f'product {p}')
 
         # return Block(
         #     url=url,
@@ -139,7 +135,7 @@ class AvitoParser:
         r = urllib.parse.urlparse(href)
     
         params = urllib.parse.parse_qs(r.query)
-        return int(params['p'][0])
+        return min(int(params['p'][0]), self.PAGE_LIMIT)
 
 
     def get_blocks(self, page: int = None):
@@ -156,7 +152,7 @@ class AvitoParser:
 
     def parse_all(self):
         limit = self.get_pagination_limit()
-        print(f'Всего страниц: {limit}')
+        logger.info(f'Всего страниц: {limit}')
 
         for i in range(1, limit + 1):
             self.get_blocks(page=i)
