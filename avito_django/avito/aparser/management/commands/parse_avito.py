@@ -32,7 +32,8 @@ class AvitoParser:
         if page and page > 1:
             params['p'] = page
         
-        url = 'https://www.avito.ru/nizhniy_novgorod/zemelnye_uchastki/prodam-ASgBAgICAUSWA9oQ?f=ASgBAgECAUSWA9oQAUXGmgwWeyJmcm9tIjowLCJ0byI6NDAwMDAwfQ'
+        # url = 'https://www.avito.ru/nizhniy_novgorod/zemelnye_uchastki/prodam-ASgBAgICAUSWA9oQ?f=ASgBAgECAUSWA9oQAUXGmgwWeyJmcm9tIjowLCJ0byI6NDAwMDAwfQ'
+        url = 'https://www.avito.ru/nizhniy_novgorod/tovary_dlya_kompyutera/komplektuyuschie-ASgBAgICAUTGB~pm?cd=1&q=gtx+1070'
         r = self.session.get(url, params=params)
         
         return r.text
