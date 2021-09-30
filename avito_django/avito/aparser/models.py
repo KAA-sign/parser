@@ -1,8 +1,10 @@
 from django.db import models
 
+from .constants import STATUS_NEW, STATUS_READY
+
 class Task(models.Model):
     url = models.URLField(verbose_name='Ссылка на раздел', unique=True)
-    status = models.IntegerField(verbose_name='Статус задания', choices = ((1, 'Новое'), (2, 'Готово')))
+    status = models.IntegerField(verbose_name='Статус задания', choices = ((STATUS_NEW, 'Новое'), (STATUS_READY, 'Готово')), default=STATUS_NEW,)
 
     def __str__(self):
         return f'#{self.pk} {self.url}'
