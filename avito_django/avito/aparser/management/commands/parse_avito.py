@@ -8,7 +8,8 @@ from django.core.management.base import BaseCommand
 from django.core.management.base import CommandError
 
 from aparser.models import Product
-
+from aparser.models import Task
+from aparser.constants import STATUS_NEW, STATUS_READY
 
 
 logger = getLogger(__name__)
@@ -23,6 +24,9 @@ class AvitoParser:
             'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/92.0.4515.159 Safari/537.36',
             'Accept-Language': 'ru',
         }
+
+    def find_task(self) -> Task:
+        pass
 
     def get_page(self, page: int = None):
         params = {
