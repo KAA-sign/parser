@@ -7,9 +7,10 @@ import requests
 from django.core.management.base import BaseCommand
 from django.core.management.base import CommandError
 
+from aparser.constants import STATUS_NEW, STATUS_READY
 from aparser.models import Product
 from aparser.models import Task
-from aparser.constants import STATUS_NEW, STATUS_READY
+
 
 
 logger = getLogger(__name__)
@@ -24,9 +25,19 @@ class AvitoParser:
             'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/92.0.4515.159 Safari/537.36',
             'Accept-Language': 'ru',
         }
+        self.task = None
 
-    def find_task(self) -> Task:
-        pass
+    def find_task(self):
+        obj = Task.objects.filter(status=STATUS_NEW).first()
+        if not obj:
+            raise BaseCommand('Task not found')
+        self.task = obj
+        logger.info(f'Работаем над заданием {self.task}')
+
+    def finish_task(self):
+        self.task = STATUS_READY
+        self.task.save()
+        logger.info(f'Закончили задание {self.task}')
 
     def get_page(self, page: int = None):
         params = {
@@ -35,11 +46,13 @@ class AvitoParser:
         }
         if page and page > 1:
             params['p'] = page
+
+        url = self.task.url
         
         # url = 'https://www.avito.ru/nizhniy_novgorod/zemelnye_uchastki/prodam-ASgBAgICAUSWA9oQ?f=ASgBAgECAUSWA9oQAUXGmgwWeyJmcm9tIjowLCJ0byI6NDAwMDAwfQ'
-        url = 'https://www.avito.ru/nizhniy_novgorod/tovary_dlya_kompyutera/komplektuyuschie-ASgBAgICAUTGB~pm?cd=1&q=gtx+1070'
+        # url = 'https://www.avito.ru/nizhniy_novgorod/tovary_dlya_kompyutera/komplektuyuschie-ASgBAgICAUTGB~pm?cd=1&q=gtx+1070'
         r = self.session.get(url, params=params)
-        
+        r.raise_for_status()
         return r.text
 
     def parse_block(self, item):
@@ -106,12 +119,14 @@ class AvitoParser:
 
         try:
             p = Product.objects.get(url=url)
+            p.task = self.task
             p.title = title
             p.price = price
             p.currency = currency
             p.save()
         except Product.DoesNotExist:
             p = Product(
+                task = self.task,
                 url = url,
                 title = title,
                 price=price,
@@ -156,11 +171,18 @@ class AvitoParser:
             # print(block)
 
     def parse_all(self):
+        # Выбор задания
+        self.find_task()
+
         limit = self.get_pagination_limit()
         logger.info(f'Всего страниц: {limit}')
 
         for i in range(1, limit + 1):
+            logger.info(f'Работаем над страницей {i}')
             self.get_blocks(page=i)
+
+        # Завершить задание
+        self.find_task()
 
 
 

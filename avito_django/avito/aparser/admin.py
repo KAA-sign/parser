@@ -40,11 +40,11 @@ class PriceFilter(admin.SimpleListFilter):
 
 @admin.register(Product)
 class ProductAdmin(admin.ModelAdmin):
-    list_display = ('pk', 'title', 'price', 'currency', 'published_date', 'url')
-    list_filter = ('currency', 'published_date', PriceFilter)
+    list_display = ('pk', 'title', 'price', 'currency', 'published_date', 'url', 'task')
+    list_filter = ('currency', 'published_date', 'task', PriceFilter)
     form = ProductForm
 
 @admin.register(Task)
 class TaskAdmin(admin.ModelAdmin):
     list_display = ('pk', 'url', 'status')
-    list_filter = ('status')
+    list_filter = ('status',)
