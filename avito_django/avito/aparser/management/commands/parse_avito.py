@@ -35,9 +35,9 @@ class AvitoParser:
         logger.info(f'Работаем над заданием {self.task}')
 
     def finish_task(self):
-        self.task = STATUS_READY
+        self.task.status = STATUS_READY
         self.task.save()
-        logger.info(f'Закончили задание {self.task}')
+        logger.info(f'Закончили задание')
 
     def get_page(self, page: int = None):
         params = {
@@ -49,8 +49,6 @@ class AvitoParser:
 
         url = self.task.url
         
-        # url = 'https://www.avito.ru/nizhniy_novgorod/zemelnye_uchastki/prodam-ASgBAgICAUSWA9oQ?f=ASgBAgECAUSWA9oQAUXGmgwWeyJmcm9tIjowLCJ0byI6NDAwMDAwfQ'
-        # url = 'https://www.avito.ru/nizhniy_novgorod/tovary_dlya_kompyutera/komplektuyuschie-ASgBAgICAUTGB~pm?cd=1&q=gtx+1070'
         r = self.session.get(url, params=params)
         r.raise_for_status()
         return r.text
@@ -104,18 +102,6 @@ class AvitoParser:
             raise CommandError('bad "date_block" css')
 
         date = date_block.string.strip()
-        # absolute_date = date_block('absolute_date')
-        # if absolute_date:
-        #     date = self.parse_date(item=absolute_date)
-
-        # bbb = Block(
-        #     url=url,
-        #     title=title,
-        #     price=price,
-        #     currency=currency,
-        #     date=date,
-        # )
-        # print(bbb)
 
         try:
             p = Product.objects.get(url=url)
@@ -135,14 +121,6 @@ class AvitoParser:
             ).save()
 
         logger.debug(f'product {p}')
-
-        # return Block(
-        #     url=url,
-        #     title=title,
-        #     price=price,
-        #     currency=currency,
-        #     date=date,
-        # )
         
     def get_pagination_limit(self):
         text = self.get_page()
@@ -182,7 +160,7 @@ class AvitoParser:
             self.get_blocks(page=i)
 
         # Завершить задание
-        self.find_task()
+        self.finish_task()
 
 
 
