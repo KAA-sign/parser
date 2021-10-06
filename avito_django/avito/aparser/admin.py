@@ -46,5 +46,5 @@ class ProductAdmin(admin.ModelAdmin):
 
 @admin.register(Task)
 class TaskAdmin(admin.ModelAdmin):
-    list_display = ('pk', 'url', 'status')
+    list_display = ('pk', 'title', 'url', 'status')
     list_filter = ('status',)
