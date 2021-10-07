@@ -3,7 +3,7 @@ from django.db import models
 from .constants import STATUS_NEW, STATUS_READY
 
 class Task(models.Model):
-    title = models.TextField(verbose_name='Название задания', default='Задание')
+    title = models.TextField(verbose_name='Название задания', unique=True,)
     url = models.URLField(verbose_name='Ссылка на раздел', unique=True)
     status = models.IntegerField(verbose_name='Статус задания', choices = ((STATUS_NEW, 'Новое'), (STATUS_READY, 'Готово')), default=STATUS_NEW,)
 

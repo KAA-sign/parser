@@ -1,7 +1,8 @@
 from django.contrib import admin
 
-from .models import Product
+from .forms import TaskForm
 from .forms import ProductForm
+from .models import Product
 from .models import Task
 
 
@@ -40,7 +41,7 @@ class PriceFilter(admin.SimpleListFilter):
 
 @admin.register(Product)
 class ProductAdmin(admin.ModelAdmin):
-    list_display = ('pk', 'title', 'price', 'currency', 'published_date', 'url', 'task')
+    list_display = ('pk', 'title', 'task', 'price', 'currency', 'published_date', 'url')
     list_filter = ('currency', 'published_date', 'task', PriceFilter)
     form = ProductForm
 
@@ -48,3 +49,4 @@ class ProductAdmin(admin.ModelAdmin):
 class TaskAdmin(admin.ModelAdmin):
     list_display = ('pk', 'title', 'url', 'status')
     list_filter = ('status',)
+    form = TaskForm

@@ -30,7 +30,7 @@ class AvitoParser:
     def find_task(self):
         obj = Task.objects.filter(status=STATUS_NEW).first()
         if not obj:
-            raise BaseCommand('Task not found')
+            raise CommandError('Task not found')
         self.task = obj
         logger.info(f'Работаем над заданием {self.task}')
 
@@ -80,8 +80,6 @@ class AvitoParser:
             raise CommandError('bad "price_block" css')
 
         price_block = price_block.get_text('\n')
-        # price_block_ = "".join(c for c in price_block if  c.isdecimal())
-        # price_block = price_block_
         price_block = list(filter(None, map(lambda i: i.strip(), price_block.split('\n'))))
         if len(price_block) == 2:
             price, currency = price_block
