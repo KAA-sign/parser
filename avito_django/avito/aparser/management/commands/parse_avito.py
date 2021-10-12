@@ -85,7 +85,6 @@ class AvitoParser:
             price, currency = price_block
             pr = "".join(c for c in price if  c.isdecimal())
             price = pr
-            # price = int(price.replace(' ', ''))
         elif len(price_block) == 1:
             price, currency = 0, None
         else:
